@@ -28,6 +28,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      # Runs before the site is assembled: a broken link or a missing landmark
+      # should stop the deploy rather than ship and be found later. Offline by
+      # construction -- every rule is decided from files in the checkout.
+      - name: Check public documentation links and accessibility
+        run: node scripts/saferide-public-docs-check.mjs
+
+      - name: Test the documentation checker
+        run: node --test scripts/__tests__/saferide-public-docs-check.test.mjs
+
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
