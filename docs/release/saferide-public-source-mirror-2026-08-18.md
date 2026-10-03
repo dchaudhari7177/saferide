@@ -81,9 +81,9 @@ SHA-256 ledger, and provenance JSON.
 The canonical public `main` branch requires review, conversation resolution,
 and the successful CI and reproducibility checks. Force pushes and branch
 deletion are disabled. Seven public issues are available, including five
-bounded `good first issue` tasks. The GitHub Project V2 board is the only
-incomplete community-governance item because the active GitHub token lacks the
-`project` and `read:project` OAuth scopes.
+bounded `good first issue` tasks. The reviewer-visible SafeRide Open Source
+Roadmap is public at `https://github.com/orgs/esherialabs/projects/3` and tracks
+all seven issues with current board status.
 
 ## Android preview retained
 
@@ -101,6 +101,9 @@ UNICEF-approved release.
 
 - Esheria For Good: `https://esheria.org/`
 - SafeRide website: `https://saferide.esheria.org/`
+- Production website release: `20260819T155041Z-fd36d32` from reviewed commit
+  `fd36d32bdf97973218efe4d611481a841522df88`; 220 files matched the deployment
+  manifest and the production smoke test passed.
 - Canonical source: `https://github.com/esherialabs/saferide`
 - Current mobile model:
   `https://huggingface.co/esherialabs/saferide-gemma-4-e2b-v058-original-419806-litertlm`

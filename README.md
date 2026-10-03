@@ -236,7 +236,7 @@ Additional roots of note:
 ## Contributing
 
 - Public issues and pull requests are welcome. Start with `CONTRIBUTING.md` and
-  the public project board.
+  the [SafeRide Open Source Roadmap](https://github.com/orgs/esherialabs/projects/3).
 - Preserve the offline-first and explicit-consent contracts; never use or log
   real survivor information.
 - Use synthetic fixtures and include focused verification for behavior changes.

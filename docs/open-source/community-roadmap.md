@@ -1,17 +1,19 @@
 # Community roadmap
 
-SafeRide uses public GitHub issues and the “SafeRide Open Source Roadmap”
+SafeRide uses public GitHub issues and the
+[SafeRide Open Source Roadmap](https://github.com/orgs/esherialabs/projects/3)
 project board.
 
 ## Board states
 
-- **Backlog** — accepted but not scheduled.
-- **Ready** — scoped, public-safe, and ready for a contributor.
-- **In progress** — actively owned.
-- **In review** — pull request or evidence awaiting review.
+- **Todo** — accepted public work that is unscheduled or ready for a contributor.
+- **In Progress** — actively owned work, including issues with a linked open pull
+  request.
 - **Done** — merged into the canonical public repository with verification.
-- **Blocked** — waiting on hardware, artifact, access, legal, privacy, or
-  safeguarding approval.
+
+Labels, milestones, linked pull requests, and issue comments retain the finer
+`ready`, `in review`, and `blocked` distinctions without publishing sensitive
+security, survivor, partner, or operational information.
 
 ## Labels
 
