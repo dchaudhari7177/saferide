@@ -19,13 +19,19 @@ ROOT = Path(__file__).resolve().parents[1]
 TOKEN_ENV = "SAFERIDE_HF_TOKEN"
 EXPECTED_OWNER_IDENTITY = "esherialabs"
 NOTICE_PATH = ROOT / "docs/qa/saferide-gemma-3n-superseded-notice-2026-08-18.md"
+LEGACY_PUBLIC_LINK_REPLACEMENTS: tuple[tuple[bytes, bytes], ...] = (
+    (
+        b"https://github.com/esherialabs/saferider",
+        b"https://github.com/esherialabs/saferide",
+    ),
+)
 
 REPOSITORIES: tuple[dict[str, str], ...] = (
     {
         "key": "mobile",
         "repo_id": "esherialabs/saferide-gemma-4-e2b-v058-original-419806-litertlm",
         "repo_type": "model",
-        "expected_head": "d5b95e58c3e51185178f432e2c620e72f3af6e2b",
+        "expected_head": "ce0b969d2ef747b43b91b7278cf1c297efc0f666",
         "local_readme": "docs/qa/saferide-gemma4-e2b-v058-litertlm-model-card-2026-08-10.md",
         "message": "Refresh Android testing and project links",
     },
@@ -33,7 +39,7 @@ REPOSITORIES: tuple[dict[str, str], ...] = (
         "key": "adapter",
         "repo_id": "esherialabs/saferide-gemma-4-e2b-v058-original-419806-adapter",
         "repo_type": "model",
-        "expected_head": "92d551fcf5524b23f2bee28ea4ed1438baf302de",
+        "expected_head": "42d98ef60eddcc280e1e3c3a0b78ff44842c1d98",
         "local_readme": "docs/qa/saferide-gemma4-e2b-v058-adapter-model-card-2026-08-11.md",
         "message": "Add current SafeRide project links",
     },
@@ -41,7 +47,7 @@ REPOSITORIES: tuple[dict[str, str], ...] = (
         "key": "dataset",
         "repo_id": "esherialabs/saferide-gemma-4-e2b-v058-original-419806-training-data",
         "repo_type": "dataset",
-        "expected_head": "5c8679b61226697a4585d70d569669bf64417c96",
+        "expected_head": "da760c09e0d51e929778d10db749b5bb60cfa70c",
         "local_readme": "docs/qa/saferide-gemma4-v058-dataset-card-2026-08-11.md",
         "message": "Add current SafeRide project links",
     },
@@ -49,7 +55,7 @@ REPOSITORIES: tuple[dict[str, str], ...] = (
         "key": "legacy",
         "repo_id": "esherialabs/saferide-gemma-3n",
         "repo_type": "model",
-        "expected_head": "ab6b36713e38a3fd07ea871dc3207e3516873b34",
+        "expected_head": "a1f511656e759927bcab2af6ff87e129e2c4689f",
         "local_readme": "",
         "message": "Mark Gemma 3n model as superseded",
     },
@@ -103,6 +109,8 @@ def non_readme_inventory(info: Any) -> list[tuple[str, int | None, str | None]]:
 def place_notice_after_front_matter(historical: bytes, notice: bytes) -> bytes:
     normalized_notice = notice.rstrip() + b"\n\n"
     content = historical
+    for old_link, current_link in LEGACY_PUBLIC_LINK_REPLACEMENTS:
+        content = content.replace(old_link, current_link)
     if content.startswith(normalized_notice):
         content = content[len(normalized_notice):]
 

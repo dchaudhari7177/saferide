@@ -171,7 +171,7 @@ test.describe('SafeRide v2  Mozilla near-clone', () => {
       await expect(footer.getByText(column, { exact: true }).first()).toBeVisible();
     }
     await expect(footer).toContainText(`© ${new Date().getFullYear()} Esheria Ventures Limited`);
-    await expect(footer.getByRole('link', { name: 'Esheria For Good' })).toHaveAttribute(
+    await expect(footer.locator('li > a[href="https://esheria.org/"]')).toHaveAttribute(
       'href',
       'https://esheria.org/',
     );
@@ -194,7 +194,7 @@ test.describe('SafeRide v2  Mozilla near-clone', () => {
     }
 
     await expect(page.locator('[data-testid="main-nav"]').getByRole('link', { name: /Esheria For Good initiative/ })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Esheria For Good' })).toBeVisible();
+    await expect(affiliation.getByRole('link', { name: 'Esheria For Good' })).toBeVisible();
   });
 
   test('all routes return 200', async ({ page }) => {

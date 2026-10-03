@@ -59,6 +59,7 @@
     "vitest.config.mjs",
     "vitest.coverage.config.mjs",
     "vitest.critical-coverage.config.mjs",
+    "docs/qa/saferide-gemma-3n-superseded-notice-2026-08-18.md",
     "docs/qa/saferide-gemma4-e2b-v058-adapter-model-card-2026-08-11.md",
     "docs/qa/saferide-gemma4-e2b-v058-litertlm-export-receipt-2026-08-10.json",
     "docs/qa/saferide-gemma4-e2b-v058-litertlm-model-card-2026-08-10.md",
