@@ -11,6 +11,7 @@
  *   node scripts/saferide-public-docs-check.mjs --root path/to/fixture
  */
 
+import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -31,6 +32,10 @@ function parseRoot(argv) {
 
 function main(argv) {
   const rootDir = parseRoot(argv);
+  if (!fs.existsSync(rootDir) || !fs.statSync(rootDir).isDirectory()) {
+    console.error(`public docs check: root is not a directory: ${rootDir}`);
+    return 2;
+  }
   const { checkedMarkdown, checkedPages, findings } = runPublicDocsCheck(rootDir);
 
   if (findings.length === 0) {

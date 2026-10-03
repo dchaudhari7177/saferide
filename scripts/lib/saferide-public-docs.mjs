@@ -142,6 +142,20 @@ export function checkLinkText(rootDir, relativePath) {
 }
 
 /**
+ * How many elements in a page are a main landmark.
+ *
+ * Counted per element, not per match: `<main role="main">` is one landmark
+ * that says so twice, while `<main>` beside a `<div role="main">` is two.
+ */
+export function countMainLandmarks(html) {
+  let count = 0;
+  for (const tag of html.matchAll(/<([a-z][a-z0-9-]*)\b([^>]*)>/gi)) {
+    if (tag[1].toLowerCase() === 'main' || /\brole\s*=\s*["']main["']/i.test(tag[2])) count += 1;
+  }
+  return count;
+}
+
+/**
  * Landmark and metadata rules for one HTML page.
  *
  * Deliberately a small, stable set rather than a general accessibility audit:
@@ -152,8 +166,7 @@ export function checkHtmlAccessibility(rootDir, relativePath) {
   const html = fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
   const findings = [];
 
-  const mainCount =
-    (html.match(/<main\b/gi) || []).length + (html.match(/role\s*=\s*["']main["']/gi) || []).length;
+  const mainCount = countMainLandmarks(html);
   if (mainCount === 0) {
     findings.push(finding(relativePath, 'no main landmark: a keyboard user cannot skip to the content'));
   } else if (mainCount > 1) {
@@ -203,6 +216,15 @@ export function runPublicDocsCheck(rootDir) {
   const markdown = listMarkdownFiles(rootDir);
   const pages = listSiteHtml(rootDir);
   const findings = [];
+
+  // A wrong --root, or a deleted docs tree, would otherwise check nothing and
+  // pass. Both surfaces are required, so an empty one is itself a finding.
+  if (markdown.length === 0) {
+    findings.push(finding(DOCS_DIR, 'no Markdown files found: the documentation surface is missing'));
+  }
+  if (pages.length === 0) {
+    findings.push(finding(SITE_DIR, 'no HTML pages found: the site surface is missing'));
+  }
 
   for (const file of [...markdown, ...pages]) {
     findings.push(...checkLinks(rootDir, file));

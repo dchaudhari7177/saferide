@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -6,6 +9,7 @@ import {
   checkHtmlAccessibility,
   checkLinkText,
   checkLinks,
+  countMainLandmarks,
   listMarkdownFiles,
   listSiteHtml,
   runPublicDocsCheck,
@@ -15,6 +19,17 @@ const testDir = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(testDir, '../..');
 const PASSING = path.join(testDir, 'fixtures/public-docs/passing');
 const FAILING = path.join(testDir, 'fixtures/public-docs/failing');
+const CLI = path.join(repositoryRoot, 'scripts/saferide-public-docs-check.mjs');
+
+function tempDir(t) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'saferide-public-docs-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  return dir;
+}
+
+function runCli(...args) {
+  return spawnSync(process.execPath, [CLI, ...args], { encoding: 'utf8' });
+}
 
 const messages = (findings) => findings.map((f) => f.message);
 const hasMessage = (findings, fragment) => messages(findings).some((m) => m.includes(fragment));
@@ -117,4 +132,53 @@ test('the check needs no network', () => {
   const findings = runPublicDocsCheck(PASSING).findings;
   assert.deepEqual(findings, []);
   assert.deepEqual(listSiteHtml(PASSING), ['docs/open-source/site/index.html']);
+});
+
+test('a main element that also declares role="main" is one landmark', (t) => {
+  assert.equal(countMainLandmarks('<main role="main"><h1>SafeRide</h1></main>'), 1);
+  assert.equal(countMainLandmarks("<MAIN ROLE='main'></MAIN>"), 1);
+
+  const root = tempDir(t);
+  fs.writeFileSync(
+    path.join(root, 'page.html'),
+    '<html lang="en"><head><title>SafeRide</title></head><body><main role="main"></main></body></html>',
+  );
+  assert.deepEqual(checkHtmlAccessibility(root, 'page.html'), []);
+});
+
+test('separate main elements are each counted', () => {
+  assert.equal(countMainLandmarks('<main></main><main></main>'), 2);
+  assert.equal(countMainLandmarks('<main></main><div role="main"></div>'), 2);
+  assert.equal(countMainLandmarks('<main role="main"></main><section role="main"></section>'), 2);
+  assert.equal(countMainLandmarks('<div role="navigation"></div><mainframe></mainframe>'), 0);
+});
+
+test('a root with neither documentation surface is a finding, not a pass', (t) => {
+  const result = runPublicDocsCheck(tempDir(t));
+  assert.equal(result.checkedMarkdown, 0);
+  assert.equal(result.checkedPages, 0);
+  assert.ok(hasMessage(result.findings, 'no Markdown files found'));
+  assert.ok(hasMessage(result.findings, 'no HTML pages found'));
+});
+
+test('a root with Markdown but no site pages still fails', (t) => {
+  const root = tempDir(t);
+  fs.mkdirSync(path.join(root, 'docs/open-source'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/open-source/README.md'), '# Docs\n');
+  const { findings } = runPublicDocsCheck(root);
+  assert.ok(!hasMessage(findings, 'no Markdown files found'));
+  assert.ok(hasMessage(findings, 'no HTML pages found'));
+});
+
+test('the CLI exits 0 on a clean tree, 1 on an empty one and 2 on a missing one', (t) => {
+  assert.equal(runCli('--root', PASSING).status, 0);
+  assert.equal(runCli('--root', FAILING).status, 1);
+
+  const empty = runCli('--root', tempDir(t));
+  assert.equal(empty.status, 1);
+  assert.match(empty.stderr, /no Markdown files found/);
+
+  const missing = runCli('--root', path.join(tempDir(t), 'does-not-exist'));
+  assert.equal(missing.status, 2);
+  assert.match(missing.stderr, /root is not a directory/);
 });
